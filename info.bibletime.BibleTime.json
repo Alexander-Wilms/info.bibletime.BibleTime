@@ -1,12 +1,10 @@
 {
   "id": "info.bibletime.BibleTime",
-  "branch": "stable",
   "sdk": "org.kde.Sdk",
   "runtime": "org.kde.Platform",
-  "runtime-version": "5.11",
+  "runtime-version": "5.15",
   "command": "bibletime",
-  "rename-icon": "bibletime",
-  "rename-desktop-file": "bibletime.desktop",
+  "default-branch": "stable",
   "finish-args": [
     "--socket=x11",
     "--share=ipc",
@@ -41,7 +39,7 @@
     {
       "name" : "sword",
       "config-opts" : [
-        "--disable-static"
+        "--with-icu=no --disable-static"
       ],
       "sources" : [
         {
@@ -57,35 +55,45 @@
       ]
     },
     {
+      "name": "bibletime-docs",
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/bibletime/generated_docs.git",
+          "commit": "91106e27ea2f9019d13cc57ddf4e9b94d938dea7"
+        }
+      ],
+      "buildsystem": "simple",
+      "build-commands": [
+          "mkdir -p /app/share/doc/bibletime",
+          "cp -r docs/v3.0/h*  /app/share/doc/bibletime"
+      ]
+    },
+    {
       "name": "bibletime",
       "buildsystem": "cmake-ninja",
       "config-opts": [
-        "-DCMAKE_BUILD_TYPE=release"
+        "-DCMAKE_BUILD_TYPE=release",
+        "-DBT_RUNTIME_DOCDIR=share/doc/bibletime",
+        "-DBUILD_HANDBOOK_HTML=OFF",
+        "-DBUILD_HANDBOOK_PDF=OFF",
+        "-DBUILD_HOWTO_HTML=OFF",
+        "-DBUILD_HOWTO_PDF=OFF"
       ],
       "builddir": true,
       "sources": [
         {
+          "url": "https://github.com/bibletime/bibletime/releases/download/v3.0/bibletime-3.0.tar.xz",
           "type": "archive",
-          "url": "https://github.com/bibletime/bibletime/releases/download/v2.11.2/bibletime-2.11.2.tar.xz",
-          "sha256": "d178197ce87c8211733409fb28fa6ed0220800bbf06944ebb8fe85bf78ddabe8"
+          "sha256": "d6beef62ad44b255e3dc4c5e89214bf01a0e85c9136073b0be12fca3d2b22622"
+        },
+        {
+          "type": "patch",
+          "path": "p1.patch"
         }
       ],
       "cleanup": [
         "/lib/pkgconfig"
-      ]
-    },
-    {
-      "name": "appdata",
-      "buildsystem": "simple",
-      "build-commands": [
-        "mkdir -p ${FLATPAK_DEST}/share/appdata",
-        "cp info.bibletime.BibleTime.appdata.xml ${FLATPAK_DEST}/share/appdata"
-      ],
-      "sources": [
-        {
-          "type": "file",
-          "path": "info.bibletime.BibleTime.appdata.xml"
-        }
       ]
     }
   ]
